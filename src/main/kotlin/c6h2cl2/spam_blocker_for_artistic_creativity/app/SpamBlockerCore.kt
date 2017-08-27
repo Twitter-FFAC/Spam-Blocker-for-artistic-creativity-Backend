@@ -29,7 +29,7 @@ fun main(args: Array<String>) {
  * OAuth認証を行い、AccessTokenを取得します。
  * 既にAccessTokenを取得している場合、コマンド引数に -access-token 及び -access-secret を用いることで、認証をスキップできます。
  */
-fun getAccessToken(args: Array<String>): AccessToken {
+private fun getAccessToken(args: Array<String>): AccessToken {
     val twitter = TwitterFactory.getSingleton()
     val requestToken = twitter.oAuthRequestToken
     var accessToken: AccessToken? = null
@@ -63,7 +63,7 @@ fun getAccessToken(args: Array<String>): AccessToken {
 /**
  * スパム通報&ブロックの対象となるUserのIDの一覧を取得します。
  */
-fun getTargetList(): List<Long> {
+private fun getTargetList(): List<Long> {
     val url = URL("https://raw.githubusercontent.com/acid-chicken/fight-for-artistic-creativity/master/lists/blacklist.csv")
     val reader = BufferedReader(InputStreamReader(url.openConnection().getInputStream()))
     return reader.lines()
@@ -74,14 +74,14 @@ fun getTargetList(): List<Long> {
 /**
  * UserのScreenNameを取得します。
  */
-fun getScreenName(twitter: Twitter, id: Long): String {
+private fun getScreenName(twitter: Twitter, id: Long): String {
     return "@${twitter.showUser(id).screenName}"
 }
 
 /**
  * スパム通報&ブロックの処理を行います。
  */
-fun handleReportAndBlock(twitter: Twitter, targetList: List<Long>, handledSet: Set<Long>): Set<Long> {
+private fun handleReportAndBlock(twitter: Twitter, targetList: List<Long>, handledSet: Set<Long>): Set<Long> {
     var spamRateLimit = false
     var blockRateLimit = false
     val failedSet = emptySet<Long>().toMutableSet()
@@ -127,7 +127,7 @@ fun handleReportAndBlock(twitter: Twitter, targetList: List<Long>, handledSet: S
 /**
  * スパム通報&ブロックに成功したアカウントのIDの一覧をCSV形式で保存します。
  */
-fun saveSucceedSet(succeedSet: Set<Long>, userId: Long = 0L) {
+private fun saveSucceedSet(succeedSet: Set<Long>, userId: Long = 0L) {
     val path = File("succeed${if (userId != 0L) "_$userId" else ""}.csv").toPath()
     if (!Files.exists(path)) {
         Files.createFile(path)
@@ -142,7 +142,7 @@ fun saveSucceedSet(succeedSet: Set<Long>, userId: Long = 0L) {
 /**
  * 既にスパム通報&ブロックが行われているアカウントのIDの一覧を読み込みます。
  */
-fun loadHandledSet(userId: Long = 0L): Set<Long> {
+private fun loadHandledSet(userId: Long = 0L): Set<Long> {
     val path = File("succeed${if (userId != 0L) "_$userId" else ""}.csv").toPath()
     if (!Files.exists(path)) {
         return emptySet()
