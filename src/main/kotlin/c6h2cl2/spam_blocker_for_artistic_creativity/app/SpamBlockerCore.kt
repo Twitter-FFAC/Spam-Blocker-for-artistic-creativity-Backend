@@ -20,9 +20,9 @@ fun main(args: Array<String>) {
     val targetList = getTargetList()
     val twitter = TwitterFactory.getSingleton()
     twitter.oAuthAccessToken = accessToken
-    val handledSet = loadHandledSet()
+    val handledSet = loadHandledSet(twitter.id)
     val succeedSet = handleReportAndBlock(twitter, targetList, handledSet)
-    saveSucceedSet(succeedSet)
+    saveSucceedSet(succeedSet, twitter.id)
 }
 
 /**
@@ -127,8 +127,8 @@ fun handleReportAndBlock(twitter: Twitter, targetList: List<Long>, handledSet: S
 /**
  * スパム通報&ブロックに成功したアカウントのIDの一覧をCSV形式で保存します。
  */
-fun saveSucceedSet(succeedSet: Set<Long>) {
-    val path = File("succeed.csv").toPath()
+fun saveSucceedSet(succeedSet: Set<Long>, userId: Long = 0L) {
+    val path = File("succeed${if (userId != 0L) "_$userId" else ""}.csv").toPath()
     if (!Files.exists(path)) {
         Files.createFile(path)
     }
@@ -142,8 +142,8 @@ fun saveSucceedSet(succeedSet: Set<Long>) {
 /**
  * 既にスパム通報&ブロックが行われているアカウントのIDの一覧を読み込みます。
  */
-fun loadHandledSet(): Set<Long> {
-    val path = File("succeed.csv").toPath()
+fun loadHandledSet(userId: Long = 0L): Set<Long> {
+    val path = File("succeed${if (userId != 0L) "_$userId" else ""}.csv").toPath()
     if (!Files.exists(path)) {
         return emptySet()
     }
