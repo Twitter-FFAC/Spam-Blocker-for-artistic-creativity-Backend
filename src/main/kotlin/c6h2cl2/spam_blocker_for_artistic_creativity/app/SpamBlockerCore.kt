@@ -25,6 +25,10 @@ fun main(args: Array<String>) {
     saveSucceedSet(succeedSet)
 }
 
+/**
+ * OAuth認証を行い、AccessTokenを取得します。
+ * 既にAccessTokenを取得している場合、コマンド引数に -access-token 及び -access-secret を用いることで、認証をスキップできます。
+ */
 fun getAccessToken(args: Array<String>): AccessToken {
     val twitter = TwitterFactory.getSingleton()
     val requestToken = twitter.oAuthRequestToken
@@ -56,6 +60,9 @@ fun getAccessToken(args: Array<String>): AccessToken {
     return accessToken
 }
 
+/**
+ * スパム通報&ブロックの対象となるUserのIDの一覧を取得します。
+ */
 fun getTargetList(): List<Long> {
     val url = URL("https://raw.githubusercontent.com/acid-chicken/fight-for-artistic-creativity/master/lists/blacklist.csv")
     val reader = BufferedReader(InputStreamReader(url.openConnection().getInputStream()))
@@ -64,10 +71,16 @@ fun getTargetList(): List<Long> {
             .toList()
 }
 
+/**
+ * UserのScreenNameを取得します。
+ */
 fun getScreenName(twitter: Twitter, id: Long): String {
     return "@${twitter.showUser(id).screenName}"
 }
 
+/**
+ * スパム通報&ブロックの処理を行います。
+ */
 fun handleReportAndBlock(twitter: Twitter, targetList: List<Long>, handledSet: Set<Long>): Set<Long> {
     var spamRateLimit = false
     var blockRateLimit = false
@@ -111,6 +124,9 @@ fun handleReportAndBlock(twitter: Twitter, targetList: List<Long>, handledSet: S
     return targetList.filter { !failedSet.contains(it) }.toSet()
 }
 
+/**
+ * スパム通報&ブロックに成功したアカウントのIDの一覧をCSV形式で保存します。
+ */
 fun saveSucceedSet(succeedSet: Set<Long>) {
     val path = File("succeed.csv").toPath()
     if (!Files.exists(path)) {
@@ -123,6 +139,9 @@ fun saveSucceedSet(succeedSet: Set<Long>) {
     }
 }
 
+/**
+ * 既にスパム通報&ブロックが行われているアカウントのIDの一覧を読み込みます。
+ */
 fun loadHandledSet(): Set<Long> {
     val path = File("succeed.csv").toPath()
     if (!Files.exists(path)) {
