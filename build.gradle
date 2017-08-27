@@ -1,5 +1,5 @@
 group 'c6h2cl2.fight-for-artistic-creativity'
-version '1.0-SNAPSHOT'
+version '1.0.0'
 
 
 buildscript {
