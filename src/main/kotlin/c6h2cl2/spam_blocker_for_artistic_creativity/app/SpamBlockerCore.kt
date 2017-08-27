@@ -5,8 +5,10 @@ import twitter4j.TwitterException
 import twitter4j.TwitterFactory
 import twitter4j.auth.AccessToken
 import java.io.BufferedReader
+import java.io.File
 import java.io.InputStreamReader
 import java.net.URL
+import java.nio.file.Files
 import kotlin.streams.toList
 
 /**
@@ -18,25 +20,9 @@ fun main(args: Array<String>) {
     val targetList = getTargetList()
     val twitter = TwitterFactory.getSingleton()
     twitter.oAuthAccessToken = accessToken
-    targetList.forEach {
-        val screenName = getScreenName(twitter, it)
-        var flag = true
-        try {
-            twitter.reportSpam(it)
-        } catch (e: Exception) {
-            println("Failed to Report Spam$screenName")
-            flag = false
-        }
-        try {
-            twitter.createBlock(it)
-        } catch (e: Exception) {
-            println("Failed to Block $screenName")
-            flag = false
-        }
-        if (flag) {
-            println("Succeed to Report Spam & Block @${twitter.showUser(it).screenName}")
-        }
-    }
+    val handledSet = loadHandledSet()
+    val succeedSet = handleReportAndBlock(twitter, targetList, handledSet)
+    saveSucceedSet(succeedSet)
 }
 
 fun getAccessToken(args: Array<String>): AccessToken {
@@ -80,4 +66,71 @@ fun getTargetList(): List<Long> {
 
 fun getScreenName(twitter: Twitter, id: Long): String {
     return "@${twitter.showUser(id).screenName}"
+}
+
+fun handleReportAndBlock(twitter: Twitter, targetList: List<Long>, handledSet: Set<Long>): Set<Long> {
+    var spamRateLimit = false
+    var blockRateLimit = false
+    val failedSet = emptySet<Long>().toMutableSet()
+    targetList.filter { !handledSet.contains(it) }
+            .forEach {
+                val screenName = getScreenName(twitter, it)
+                var flag = true
+                try {
+                    if (!spamRateLimit) {
+                        twitter.reportSpam(it)
+                    }
+                } catch (e: TwitterException) {
+                    if (e.errorMessage == "You are over the limit for spam reports.") {
+                        spamRateLimit = true
+                        println("Rate limit exceeded")
+                    } else {
+                        println("Failed to Report Spam$screenName")
+                    }
+                    flag = false
+                    failedSet.add(it)
+                }
+                try {
+                    if (!twitter.blocksIDs.iDs.contains(it) && !blockRateLimit) {
+                        twitter.createBlock(it)
+                    }
+                } catch (e: TwitterException) {
+                    if (e.errorMessage == "Rate limit exceeded") {
+                        blockRateLimit = true
+                        println("Rate limit exceeded")
+                    } else {
+                        println("Failed to Block $screenName")
+                    }
+                    flag = false
+                    failedSet.add(it)
+                }
+                if (flag) {
+                    println("Succeed to Report Spam & Block @${twitter.showUser(it).screenName}")
+                }
+            }
+    return targetList.filter { !failedSet.contains(it) }.toSet()
+}
+
+fun saveSucceedSet(succeedSet: Set<Long>) {
+    val path = File("succeed.csv").toPath()
+    if (!Files.exists(path)) {
+        Files.createFile(path)
+    }
+    val writer = Files.newBufferedWriter(path)
+    succeedSet.forEach {
+        writer.write(it.toString())
+        writer.write("\n")
+    }
+}
+
+fun loadHandledSet(): Set<Long> {
+    val path = File("succeed.csv").toPath()
+    if (!Files.exists(path)) {
+        return emptySet()
+    }
+    val reader = Files.newBufferedReader(path)
+    return reader.lines()
+            .map { it.toLong() }
+            .toList()
+            .toSet()
 }
