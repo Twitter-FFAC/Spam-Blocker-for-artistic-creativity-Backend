@@ -6,8 +6,8 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 
 fun main(args: Array<String>) {
-    if (args.contains("--app") {
-        if (args.contains("--server") {
+    if (args.contains("--app")) {
+        if (args.contains("--server")) {
             selectAppOrServer(args)
         } else {
             runApp(args)

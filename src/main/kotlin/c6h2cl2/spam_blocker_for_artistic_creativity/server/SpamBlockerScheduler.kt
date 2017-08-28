@@ -43,6 +43,6 @@ private fun getUserSet(): Set<AccessToken> {
     return array.filter {
         it.string("accessToken") != null && it.string("accessSecret") != null
     }.map {
-        AccessToken(it.string("accessToken", it.string("accessSecret"))
+        AccessToken(it.string("accessToken"), it.string("accessSecret"))
     }
 }
