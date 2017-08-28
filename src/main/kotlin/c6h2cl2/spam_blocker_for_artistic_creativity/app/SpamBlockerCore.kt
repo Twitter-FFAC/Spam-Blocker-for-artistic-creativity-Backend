@@ -15,13 +15,14 @@ import kotlin.streams.toList
  * @author C6H2Cl2
  */
 
+val twitter = TwitterFactory.getSingleton()
+
 fun runApp(args: Array<String>) {
     val accessToken = getAccessToken(args)
     val targetList = getTargetList()
-    val twitter = TwitterFactory.getSingleton()
     twitter.oAuthAccessToken = accessToken
     val handledSet = loadHandledSet(twitter.id)
-    val succeedSet = handleReportAndBlock(twitter, targetList, handledSet)
+    val succeedSet = handleReportAndBlock(targetList, handledSet)
     saveSucceedSet(succeedSet, twitter.id)
 }
 
@@ -74,20 +75,20 @@ private fun getTargetList(): List<Long> {
 /**
  * UserのScreenNameを取得します。
  */
-private fun getScreenName(twitter: Twitter, id: Long): String {
+private fun getScreenName(id: Long): String {
     return "@${twitter.showUser(id).screenName}"
 }
 
 /**
  * スパム通報&ブロックの処理を行います。
  */
-private fun handleReportAndBlock(twitter: Twitter, targetList: List<Long>, handledSet: Set<Long>): Set<Long> {
+private fun handleReportAndBlock(targetList: List<Long>, handledSet: Set<Long>): Set<Long> {
     var spamRateLimit = false
     var blockRateLimit = false
     val failedSet = emptySet<Long>().toMutableSet()
     targetList.filter { !handledSet.contains(it) }
             .forEach {
-                val screenName = getScreenName(twitter, it)
+                val screenName = getScreenName(it)
                 var flag = true
                 try {
                     if (!spamRateLimit) {
