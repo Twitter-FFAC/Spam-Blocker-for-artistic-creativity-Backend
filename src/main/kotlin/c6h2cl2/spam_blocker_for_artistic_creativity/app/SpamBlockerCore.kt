@@ -55,6 +55,7 @@ private fun getAccessToken(args: Array<String>): AccessToken {
                 }
             }
         }
+        reader.close()
     } else {
         accessToken = AccessToken(args[args.indexOf("-access-token") + 1], args[args.indexOf("-access-secret") + 1])
     }
@@ -67,9 +68,11 @@ private fun getAccessToken(args: Array<String>): AccessToken {
 private fun getTargetList(): List<Long> {
     val url = URL("https://raw.githubusercontent.com/acid-chicken/fight-for-artistic-creativity/master/lists/blacklist.csv")
     val reader = BufferedReader(InputStreamReader(url.openConnection().getInputStream()))
-    return reader.lines()
+    val list = reader.lines()
             .map { it.toLong() }
             .toList()
+    reader.close()
+    return list
 }
 
 /**
@@ -138,6 +141,7 @@ private fun saveSucceedSet(succeedSet: Set<Long>, userId: Long = 0L) {
         writer.write(it.toString())
         writer.write("\n")
     }
+    writer.close()
 }
 
 /**
@@ -149,8 +153,10 @@ private fun loadHandledSet(userId: Long = 0L): Set<Long> {
         return emptySet()
     }
     val reader = Files.newBufferedReader(path)
-    return reader.lines()
+    val set = reader.lines()
             .map { it.toLong() }
             .toList()
             .toSet()
+    reader.close()
+    return set
 }
