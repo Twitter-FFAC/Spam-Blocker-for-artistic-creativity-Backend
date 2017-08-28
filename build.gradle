@@ -27,6 +27,7 @@ repositories {
 
 dependencies {
     compile "javax:javaee-api:7.0"
+    embed "com.beust:klaxon:0.30"
     embed "org.twitter4j:twitter4j-core:4.0.4"
     embed "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
 }
