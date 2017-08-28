@@ -15,7 +15,7 @@ import kotlin.streams.toList
  * @author C6H2Cl2
  */
 
-fun main(args: Array<String>) {
+fun runApp(args: Array<String>) {
     val accessToken = getAccessToken(args)
     val targetList = getTargetList()
     val twitter = TwitterFactory.getSingleton()
