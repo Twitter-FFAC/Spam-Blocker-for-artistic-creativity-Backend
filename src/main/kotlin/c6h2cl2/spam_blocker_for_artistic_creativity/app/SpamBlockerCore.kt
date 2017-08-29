@@ -1,6 +1,5 @@
 package c6h2cl2.spam_blocker_for_artistic_creativity.app
 
-import twitter4j.Twitter
 import twitter4j.TwitterException
 import twitter4j.TwitterFactory
 import twitter4j.auth.AccessToken
@@ -15,7 +14,7 @@ import kotlin.streams.toList
  * @author C6H2Cl2
  */
 
-val twitter = TwitterFactory.getSingleton()
+private val twitter = TwitterFactory.getSingleton()!!
 
 fun runApp(args: Array<String>) {
     val accessToken = getAccessToken(args)

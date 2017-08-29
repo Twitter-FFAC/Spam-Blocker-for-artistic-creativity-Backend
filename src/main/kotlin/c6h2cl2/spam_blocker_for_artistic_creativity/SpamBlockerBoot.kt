@@ -1,7 +1,7 @@
 package c6h2cl2.spam_blocker_for_artistic_creativity
 
-import c6h2cl2.spam_blocker_for_artistic_creativity.app.*
-import c6h2cl2.spam_blocker_for_artistic_creativity.server.*
+import c6h2cl2.spam_blocker_for_artistic_creativity.app.runApp
+import c6h2cl2.spam_blocker_for_artistic_creativity.server.runServer
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
@@ -23,11 +23,11 @@ fun selectAppOrServer(args: Array<String>) {
     val reader = BufferedReader(InputStreamReader(System.`in`))
     while(true) {
         println("""Enter "App" or "Server" """)
-        val s = reader.readLine()
-        if (s == "App") {
+        val s = reader.readLine().toLowerCase()
+        if (s == "app") {
             runApp(args)
             return
-        } else if (s == "Server") {
+        } else if (s == "server") {
             runServer(args)
             return
         }
